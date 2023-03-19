@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="initial-scale=1, user-scalable=no, maximum-scale=1,width=device-width" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="description" content="地域ブロガーおすすめスポットの地図です。柏市、流山市、野田市、守谷市、松戸市などの地域ブログが発信している記事を地図とリンクさせて表示します。">
+        <title>ちーぶろマップ - 流山・柏周辺の地域ブロガーおすすめスポットの地図</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <div id="buttons">
+            <button type="button" class="btnctrl" id="b_location">現在地を<br>しらべる</button>
+        </div>
+        <div id="icon-loader"></div>
+        <!--<script src="app/main.js"></script>-->
+        <script>
+            document.write('<script src="app/main.js?' + new Date().getTime() + '"><\/script>');
+        </script>
+    </body>
+</html>

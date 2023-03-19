@@ -1,0 +1,104 @@
+html, body {
+    margin: 0; padding: 0;
+    -webkit-text-size-adjust : 100%;
+}
+
+#map {
+    position: fixed;
+    width: 100%;
+    height: 100%
+    }
+
+table.tablestyle02 {
+    table-layout: auto;
+    width: 100%;
+    border-collapse: collapse; 
+    border-spacing:1px; 
+    border:1px solid #999;
+}
+
+table.tablestyle02 th {
+    color: #fff;
+    background-color: #52c2d0;
+    text-align: center;
+    padding: 4px;
+    font-size: 13px; 
+    font-weight: 400; 
+    font-family: Helvetica, "游ゴシック体", YuGothic, "YuGothic M", sans-serif;
+}
+
+table.tablestyle02 td {
+    color:#333;
+    background-color: #fff;
+    height: 50px;
+    width: 120px;
+    text-align: center;
+    padding: 2px;
+    font-size: 12px;
+    font-weight: 400;
+    font-family: Helvetica, "游ゴシック体", YuGothic, "YuGothic M", sans-serif;
+}
+table.tablestyle02 td.remarks{
+    font-size: 10px;
+}
+
+table.tablestyle02 tr:nth-child(odd) td {
+    background-color: #eee
+}
+
+.t-popup .maplibregl-popup-content {
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    padding: 8px 10px;
+    overflow-y: scroll !important;
+    max-height: 250px;
+}
+
+.t-popup .maplibregl-popup-anchor-right .maplibregl-popup-tip {
+    align-self: center;
+    border-right: none;
+    border-left-color: #333;
+}
+
+#buttons {
+    position: absolute;
+    z-index: 1;
+}
+#buttons>button {
+    display:inline-block;
+    position: relative;
+    justify-content: center;
+    margin: 2px;
+    width: 70px;
+    height: 45px;
+    padding: 5px;
+    border: none;
+    border-radius: 3px;
+    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.4);
+    z-index: 1;
+    font-size: 12px;
+    text-align: center;
+}
+
+#icon-loader {
+    position: absolute;
+    top: 50%;
+    left: 45%;
+    transform: translate(-50%, -50%);
+    border: 8px solid #fff;
+    border-radius: 50%;
+    border-top: 8px solid #3498db;
+    width: 30px;
+    height: 30px;
+    animation: spin 2s linear infinite;
+    z-index: 2;
+}
+
+@keyframes spin{
+    0%{
+      transform: rotate(0deg);
+    }
+    100%{
+      transform: rotate(360deg);
+    }
+}
