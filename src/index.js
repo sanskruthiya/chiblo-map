@@ -20,7 +20,7 @@ map_description.innerHTML += '<p class="tipstyle01">柏・流山周辺の地域�
 map_description.innerHTML += '<p class="tipstyle01">この説明を閉じるには、もう一度「このマップについて」ボタンを押してください。</p>';
 map_description.innerHTML += '<p class="tipstyle01">地図上の水色の円をクリック/タップすると、その場所のお店やおすすめスポットのブログ記事が一覧で表示されます。</p>';
 map_description.innerHTML += '<p class="tipstyle01">ご意見等は<a href="https://form.run/@party--1681740493" target="_blank">問い合わせフォーム（外部サービス）</a>からお知らせください。</p>';
-map_description.innerHTML += '<p class="tipstyle01">更新情報<ul><li>2023/5/16 簡易検索とリスト表示機能を追加しました。</li><li>2023/4/18 問い合わせフォームを設定しました。</li><li>2023/4/16 記事を追加しました（掲載数：377件）</li></ul></p>';
+map_description.innerHTML += '<p class="tipstyle01">更新情報<ul><li>2023/5/19 記事を追加しました（掲載数：437件）</li><li>2023/5/16 キーワードフィルターとリスト表示機能を追加しました。</li><li>2023/4/18 問い合わせフォームを設定しました。</li></ul></p>';
 map_description.innerHTML += '<hr><p class="remarks"><a href="https://twitter.com/Smille_feuille" target="_blank">管理人Twitter</a> View code on <a href="https://github.com/sanskruthiya/chiblo-map">Github</a></p>';
 
 const filterPOl = document.getElementById('filterinput');
@@ -70,10 +70,10 @@ const map = new maplibregl.Map({
 map.on('load', function () {
     map.addSource('poi', {
         'type': 'geojson',
-        'data': './app/data/poi.geojson?20230516',
+        'data': './app/data/poi.geojson?20230519',
     });
     map.addLayer({
-        'id': 'poi_blank',
+        'id': 'poi_pseudo',
         'type': 'circle',
         'source': 'poi',
         'minzoom': 5,
@@ -138,12 +138,12 @@ map.on('load', function () {
     });
     
     map.on('moveend', () => {
-        const extentPOI = map.queryRenderedFeatures({ layers: ['poi_blank'] });
+        const extentPOI = map.queryRenderedFeatures({ layers: ['poi_pseudo'] });
         
         const filtered_reload = [];
         if (filterPOl.value.length > 0) {
             for (const feature of extentPOI) {
-                if (feature.properties.name_poi.includes(filterPOl.value) || feature.properties.blog_source.includes(filterPOl.value) || feature.properties.title_source.includes(filterPOl.value)) {
+                if (feature.properties.name_poi.includes(filterPOl.value) || feature.properties.flag_poi.includes(filterPOl.value) || feature.properties.blog_source.includes(filterPOl.value) || feature.properties.title_source.includes(filterPOl.value)) {
                     filtered_reload.push(feature);
                 }
             }
@@ -164,12 +164,12 @@ map.on('load', function () {
     });
     
     filterPOl.addEventListener('change', (e) => {
-        const uniquePOI = map.queryRenderedFeatures({ layers: ['poi_blank'] });
+        const uniquePOI = map.queryRenderedFeatures({ layers: ['poi_pseudo'] });
         const filtered = [];
         
         if (e.target.value.length > 0) {
             for (const feature of uniquePOI) {
-                if (feature.properties.name_poi.includes(e.target.value) || feature.properties.blog_source.includes(e.target.value)) {
+                if (feature.properties.name_poi.includes(filterPOl.value) || feature.properties.flag_poi.includes(filterPOl.value) || feature.properties.blog_source.includes(filterPOl.value) || feature.properties.title_source.includes(filterPOl.value)) {
                     filtered.push(feature);
                 }
             }
