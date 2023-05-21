@@ -2,7 +2,7 @@ import * as maplibregl from "maplibre-gl";
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './style.css';
 
-const init_coord = [139.9493, 35.8881];
+const init_coord = [139.95, 35.89];
 const init_zoom = 11.5;
 const init_bearing = 0;
 const init_pitch = 0;
@@ -20,8 +20,8 @@ map_description.innerHTML += '<p class="tipstyle01">柏・流山周辺の地域�
 map_description.innerHTML += '<p class="tipstyle01">この説明を閉じるには、もう一度「このマップについて」ボタンを押してください。</p>';
 map_description.innerHTML += '<p class="tipstyle01">地図上の水色の円をクリック/タップすると、その場所のお店やおすすめスポットのブログ記事が一覧で表示されます。</p>';
 map_description.innerHTML += '<p class="tipstyle01">ご意見等は<a href="https://form.run/@party--1681740493" target="_blank">問い合わせフォーム（外部サービス）</a>からお知らせください。</p>';
-map_description.innerHTML += '<p class="tipstyle01">更新情報<ul><li>2023/5/19 記事を追加しました（掲載数：437件）</li><li>2023/5/16 キーワードフィルターとリスト表示機能を追加しました。</li><li>2023/4/18 問い合わせフォームを設定しました。</li></ul></p>';
-map_description.innerHTML += '<hr><p class="remarks"><a href="https://twitter.com/Smille_feuille" target="_blank">管理人Twitter</a> View code on <a href="https://github.com/sanskruthiya/chiblo-map">Github</a></p>';
+map_description.innerHTML += '<p class="tipstyle01">更新情報<ul><li>2023/5/21 リスト表示の動作を変更しました。</li><li>2023/5/19 記事を追加しました（掲載数：437件）</li><li>2023/5/16 キーワードフィルターとリスト表示機能を追加しました。</li><li>2023/4/18 問い合わせフォームを設定しました。</li></ul></p>';
+map_description.innerHTML += '<hr><p class="remarks"><a href="https://twitter.com/Smille_feuille" target="_blank">管理人Twitter</a> | View code on <a href="https://github.com/sanskruthiya/chiblo-map">Github</a></p>';
 
 const filterPOl = document.getElementById('filterinput');
 const listingPOl = document.getElementById('feature-list');
@@ -31,7 +31,7 @@ function renderListings(features) {
     listingPOl.innerHTML = '';
     
     if (features.length) { 
-        listingBox.textContent = 'マップ表示範囲内の記事数：'+features.length;
+        listingBox.textContent = 'マップ中央付近の記事数：'+features.length;
         listingPOl.appendChild(listingBox);
         for (const feature of features) {
             const itemLink = document.createElement('a');
@@ -44,10 +44,10 @@ function renderListings(features) {
         }
         filterPOl.parentNode.style.display = 'block';
     } else if (features.length === 0 && filterPOl.value !== "") {
-        listingBox.textContent = 'マップ表示範囲内で該当なし';
+        listingBox.textContent = 'マップ中央付近に該当する記事がありません。';
         listingPOl.appendChild(listingBox);
     } else {
-        listingBox.textContent = 'キーワードを入力してください。';
+        listingBox.textContent = 'マップ中央付近に記事がありません。';
         listingPOl.appendChild(listingBox);
         filterPOl.parentNode.style.display = 'block';
     }
@@ -136,58 +136,52 @@ map.on('load', function () {
         },
         'paint': {'text-color': '#333','text-halo-color': '#fff','text-halo-width': 1}
     });
-    
-    map.on('moveend', () => {
-        const extentPOI = map.queryRenderedFeatures({ layers: ['poi_pseudo'] });
-        
-        const filtered_reload = [];
-        if (filterPOl.value.length > 0) {
-            for (const feature of extentPOI) {
-                if (feature.properties.name_poi.includes(filterPOl.value) || feature.properties.flag_poi.includes(filterPOl.value) || feature.properties.blog_source.includes(filterPOl.value) || feature.properties.title_source.includes(filterPOl.value)) {
-                    filtered_reload.push(feature);
-                }
-            }
-            renderListings(filtered_reload);
-        } else {
-            renderListings(extentPOI);
-        }
-        
-        if (filtered_reload.length) {
-            map.setFilter('poi_text', ['match',['get', 'fid'],filtered_reload.map((feature) => {return feature.properties.fid;}),true,false]);
-            map.setFilter('poi_heat', ['match',['get', 'fid'],filtered_reload.map((feature) => {return feature.properties.fid;}),true,false]);
-            map.setFilter('poi_point', ['match',['get', 'fid'],filtered_reload.map((feature) => {return feature.properties.fid;}),true,false]);
-        } else {
-            map.setFilter('poi_heat', ['has', 'fid']);
-            map.setFilter('poi_text', ['has', 'fid']);
-            map.setFilter('poi_point', ['has', 'fid']);
-        }
-    });
-    
-    filterPOl.addEventListener('change', (e) => {
+
+    function generateList () {
+        const center = map.getCenter();
+        const point = map.project(center);
+        const bbox = [
+            [point.x - 30, point.y - 30],
+            [point.x + 30, point.y + 30]
+        ];
         const uniquePOI = map.queryRenderedFeatures({ layers: ['poi_pseudo'] });
-        const filtered = [];
+        const extentPOI = map.queryRenderedFeatures(bbox, { layers: ['poi_pseudo'] });
         
-        if (e.target.value.length > 0) {
+        const filtered_unique = [];
+        const filtered_extent = [];
+        
+        if (filterPOl.value.length > 0) {
             for (const feature of uniquePOI) {
                 if (feature.properties.name_poi.includes(filterPOl.value) || feature.properties.flag_poi.includes(filterPOl.value) || feature.properties.blog_source.includes(filterPOl.value) || feature.properties.title_source.includes(filterPOl.value)) {
-                    filtered.push(feature);
+                    filtered_unique.push(feature);
                 }
             }
-            renderListings(filtered);
+            for (const feature of extentPOI) {
+                if (feature.properties.name_poi.includes(filterPOl.value) || feature.properties.flag_poi.includes(filterPOl.value) || feature.properties.blog_source.includes(filterPOl.value) || feature.properties.title_source.includes(filterPOl.value)) {
+                    filtered_extent.push(feature);
+                }
+            }
+            renderListings(filtered_extent);
+            if (filtered_unique.length) {
+                map.setFilter('poi_text', ['match',['get', 'fid'],filtered_unique.map((feature) => {return feature.properties.fid;}),true,false]);
+                map.setFilter('poi_heat', ['match',['get', 'fid'],filtered_unique.map((feature) => {return feature.properties.fid;}),true,false]);
+                map.setFilter('poi_point', ['match',['get', 'fid'],filtered_unique.map((feature) => {return feature.properties.fid;}),true,false]);
+            } else {
+                //If the result is 0, then it returns no poi.
+                map.setFilter('poi_heat', ['has', 'poi0']);
+                map.setFilter('poi_text', ['has', 'poi0']);
+                map.setFilter('poi_point', ['has', 'poi0']);
+            }
         } else {
-            renderListings(uniquePOI);
-        }
-        
-        if (filtered.length) {
-            map.setFilter('poi_text', ['match',['get', 'fid'],filtered.map((feature) => {return feature.properties.fid;}),true,false]);
-            map.setFilter('poi_heat', ['match',['get', 'fid'],filtered.map((feature) => {return feature.properties.fid;}),true,false]);
-            map.setFilter('poi_point', ['match',['get', 'fid'],filtered.map((feature) => {return feature.properties.fid;}),true,false]);
-        } else {
+            renderListings(extentPOI);
             map.setFilter('poi_heat', ['has', 'fid']);
             map.setFilter('poi_text', ['has', 'fid']);
             map.setFilter('poi_point', ['has', 'fid']);
         }
-    });
+    } 
+
+    map.on('moveend', generateList);
+    filterPOl.addEventListener('change', generateList);
 
     map.on('click', 'poi_point', function (e){
         map.panTo(e.lngLat,{duration:1000});
@@ -241,14 +235,17 @@ document.getElementById('b_filter').addEventListener('click', function () {
 });
 
 document.getElementById('b_listing').addEventListener('click', function () {
-    const visibility = document.getElementById('feature-list');
-    if (visibility.style.display == 'block') {
-        visibility.style.display = 'none';
+    const visibility01 = document.getElementById('feature-list');
+    const visibility02 = document.getElementById('icon-center');
+    if (visibility01.style.display == 'block') {
+        visibility01.style.display = 'none';
+        visibility02.style.display = 'none';
         this.style.backgroundColor = "#fff";
         this.style.color = "#555"
     }
     else {
-        visibility.style.display = 'block';
+        visibility01.style.display = 'block';
+        visibility02.style.display = 'block';
         this.style.backgroundColor = "#2c7fb8";
         this.style.color = "#fff";
     }
