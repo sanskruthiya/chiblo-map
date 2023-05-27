@@ -96,6 +96,18 @@ p.remarks {
     box-sizing: border-box;
 }
 
+.filter-overlay .clearbutton{
+    width: 14px;
+    height: 14px;
+    position: absolute;
+    right: 10px;
+    bottom: 11px;
+    text-align: center;
+    transform: scale(1.4, 1);
+    color:#ccc; font-size: 12px; font-weight: bold; font-family: Helvetica, "游ゴシック体", YuGothic, "YuGothic M", sans-serif; 
+    /*background: #fff;*/
+}
+
 .list-overlay {
     position: absolute;
     overflow-y: scroll;

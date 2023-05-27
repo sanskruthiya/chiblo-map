@@ -20,11 +20,12 @@ map_description.innerHTML += '<p class="tipstyle01">柏・流山周辺の地域�
 map_description.innerHTML += '<p class="tipstyle01">この説明を閉じるには、もう一度「このマップについて」ボタンを押してください。</p>';
 map_description.innerHTML += '<p class="tipstyle01">地図上の水色の円をクリック/タップすると、その場所のお店やおすすめスポットのブログ記事が一覧で表示されます。</p>';
 map_description.innerHTML += '<p class="tipstyle01">ご意見等は<a href="https://form.run/@party--1681740493" target="_blank">問い合わせフォーム（外部サービス）</a>からお知らせください。</p>';
-map_description.innerHTML += '<p class="tipstyle01">更新情報<ul><li>2023/5/21 リスト表示の動作を変更しました。</li><li>2023/5/19 記事を追加しました（掲載数：437件）</li><li>2023/5/16 キーワードフィルターとリスト表示機能を追加しました。</li><li>2023/4/18 問い合わせフォームを設定しました。</li></ul></p>';
+map_description.innerHTML += '<p class="tipstyle01">更新情報<ul><li>2023/5/27 記事を追加しました（掲載数：508件）</li><li>2023/5/21 リスト表示の動作を変更しました。</li><li>2023/5/16 キーワードフィルターとリスト表示機能を追加しました。</li><li>2023/4/18 問い合わせフォームを設定しました。</li></ul></p>';
 map_description.innerHTML += '<hr><p class="remarks"><a href="https://twitter.com/Smille_feuille" target="_blank">管理人Twitter</a> | View code on <a href="https://github.com/sanskruthiya/chiblo-map">Github</a></p>';
 
 const filterPOl = document.getElementById('filterinput');
 const listingPOl = document.getElementById('feature-list');
+const clearBtn = document.getElementById('clearButton');
 
 function renderListings(features) {
     const listingBox = document.createElement('p');
@@ -70,7 +71,7 @@ const map = new maplibregl.Map({
 map.on('load', function () {
     map.addSource('poi', {
         'type': 'geojson',
-        'data': './app/data/poi.geojson?20230519',
+        'data': './app/data/poi.geojson?20230527',
     });
     map.addLayer({
         'id': 'poi_pseudo',
@@ -182,6 +183,7 @@ map.on('load', function () {
 
     map.on('moveend', generateList);
     filterPOl.addEventListener('change', generateList);
+    clearBtn.addEventListener('click', generateList); //this is fired right after the onclick event of clearButton
 
     map.on('click', 'poi_point', function (e){
         map.panTo(e.lngLat,{duration:1000});
