@@ -39,7 +39,9 @@ ul, li {
 }
 
 hr {
-    background-color: #333;
+    border: none;
+    border-top: 1px dotted #555;
+    width: 98%;
 }
 
 p.tipstyle01 {
@@ -52,9 +54,10 @@ p.remarks {
 
 .map-overlay {
     position: absolute;
-    width: 300px;
+    width: 80%;
+    max-width: 360px;
     top: 55px;
-    left: 10px;
+    left: 5px;
     padding: 8px 20px;
     background: rgba(255,255,255,0.9);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
@@ -62,30 +65,48 @@ p.remarks {
     line-height: 20px;
     z-index: 2;
 }
-     
-.filter-overlay {
-    position: absolute;
-    width: 280px;
-    top: 55px;
-    left: 5px;
-    padding: 5px;
-    color:#555; font-size: 10px; font-weight: normal; font-family: Helvetica, "游ゴシック体", YuGothic, "YuGothic M", sans-serif; 
-    background: #fff;
-    border:1px solid #999;
-    max-height: 30px;
-    overflow:hidden;
-}
 
-.filter-overlay fieldset {
-    display: none;
-    background: #52c2d0;
-    border: none;
+.filter-overlay {
+    color:#555; font-size: 13px; font-weight: normal; font-family: Helvetica, "游ゴシック体", YuGothic, "YuGothic M", sans-serif;
+    line-height: 21px;
+    position: absolute;
+    width: 260px;
+    top: 50px;
+    left: 0;
+    padding: 5px;
+}
+     
+.filter-overlay .filter-overlay-inner {
+    background-color: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     border-radius: 3px;
-    padding: 1px;
+    border:1px solid #999;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+     
+.filter-overlay-inner fieldset {
+    border: 1px solid #52c2d0;
+    padding: 0;
+    margin: 0 0 12px;
+}
+     
+.filter-overlay-inner fieldset:last-child {
     margin: 0;
 }
+
+.filter-overlay-inner select {
+    display: block;
+    border: none;
+    width: 100%;
+    border-radius: 3px;
+    background:#fff;
+    padding: 5px;
+    margin: 0;
+    box-sizing: border-box;
+}
      
-.filter-overlay input {
+.filter-overlay-inner input {
     display: block;
     border: none;
     width: 100%;
@@ -96,15 +117,15 @@ p.remarks {
     box-sizing: border-box;
 }
 
-.filter-overlay .clearbutton{
+.filter-overlay-inner .clearbutton{
+    color:#ccc; font-size: 12px; font-weight: bold; font-family: Helvetica, "游ゴシック体", YuGothic, "YuGothic M", sans-serif;
     width: 14px;
     height: 14px;
     position: absolute;
-    right: 10px;
-    bottom: 11px;
+    right: 20px;
+    top: 20px;
     text-align: center;
-    transform: scale(1.4, 1);
-    color:#ccc; font-size: 12px; font-weight: bold; font-family: Helvetica, "游ゴシック体", YuGothic, "YuGothic M", sans-serif; 
+    transform: scale(1.4, 1); 
     /*background: #fff;*/
 }
 
@@ -151,12 +172,12 @@ table.tablestyle02 th {
 }
 
 table.tablestyle02 th.main {
-    width: 240px;
+    width: 360px;
     text-align: center;
 }
 
 table.tablestyle02 th.remarks {
-    width: 120px;
+    width: 110px;
     text-align: center;
 }
 
@@ -169,7 +190,8 @@ table.tablestyle02 td {
 
 table.tablestyle02 td.main{
     text-align: left;
-    font-size: 12px; font-weight: 400; font-family: Helvetica, "游ゴシック体", YuGothic, "YuGothic M", sans-serif;
+    line-height: 24px;
+    font-size: 14px; font-weight: 400; font-family: Helvetica, "游ゴシック体", YuGothic, "YuGothic M", sans-serif;
 }
 
 table.tablestyle02 td.remarks{

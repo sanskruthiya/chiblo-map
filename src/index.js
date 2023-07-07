@@ -7,25 +7,57 @@ const init_zoom = 11.5;
 const init_bearing = 0;
 const init_pitch = 0;
 
-function getLinkType(d) {
-    return d === "1" ? '公式サイト' :
-           d === "2" ? 'Instagram' :
-           d === "3" ? 'Twitter' :
-           '-';
-}
-
 const map_description = document.getElementById('description');
 map_description.innerHTML += '<h2>ちーぶろマップ</h2>';
-map_description.innerHTML += '<p class="tipstyle01">柏・流山周辺の地域ブロガーの方々が発信している記事を地図上の場所とリンクさせて表示するマップです。</p>';
+map_description.innerHTML += '<p class="tipstyle01">柏・流山・松戸・野田・我孫子・守谷周辺の地域ブロガーの方々が発信している記事を地図上の場所とリンクさせて表示するマップです。</p>';
 map_description.innerHTML += '<p class="tipstyle01">この説明を閉じるには、もう一度「このマップについて」ボタンを押してください。</p>';
 map_description.innerHTML += '<p class="tipstyle01">地図上の水色の円をクリック/タップすると、その場所のお店やおすすめスポットのブログ記事が一覧で表示されます。</p>';
 map_description.innerHTML += '<p class="tipstyle01">ご意見等は<a href="https://form.run/@party--1681740493" target="_blank">問い合わせフォーム（外部サービス）</a>からお知らせください。</p>';
-map_description.innerHTML += '<p class="tipstyle01">更新情報<ul><li>2023/5/27 記事を追加しました（掲載数：508件）</li><li>2023/5/21 リスト表示の動作を変更しました。</li><li>2023/5/16 キーワードフィルターとリスト表示機能を追加しました。</li><li>2023/4/18 問い合わせフォームを設定しました。</li></ul></p>';
-map_description.innerHTML += '<hr><p class="remarks"><a href="https://twitter.com/Smille_feuille" target="_blank">管理人Twitter</a> | View code on <a href="https://github.com/sanskruthiya/chiblo-map">Github</a></p>';
+map_description.innerHTML += '<p class="tipstyle01">更新情報<ul><li>2023/7/7 記事公開日によるフィルター機能を追加しました。</li><li>2023/7/7 記事を追加しました。（掲載数：606件）</li><li>2023/5/16 キーワードフィルターとリスト表示機能を追加しました。</li><li>2023/4/18 問い合わせフォームを設定しました。</li></ul></p>';
+map_description.innerHTML += '<hr><p class="remarks"><a href="https://twitter.com/Smille_feuille" target="_blank">作成者Twitter</a> | View code on <a href="https://github.com/sanskruthiya/chiblo-map">Github</a></p>';
 
 const filterPOl = document.getElementById('filterinput');
 const listingPOl = document.getElementById('feature-list');
 const clearBtn = document.getElementById('clearButton');
+const selectedRange = document.querySelector('.range-select');
+
+const dateA = new Date(); 
+const yearA = dateA.getFullYear();
+const monthA = dateA.getMonth();
+const dayA = dateA.getDate();
+
+const utc_1m = Date.UTC(yearA, monthA-1, dayA) / 1000;
+const utc_3m = Date.UTC(yearA, monthA-3, dayA) / 1000;
+const utc_6m = Date.UTC(yearA, monthA-6, dayA) / 1000;
+const utc_1y = Date.UTC(yearA-1, monthA, dayA) / 1000;
+const utc_4y = Date.UTC(yearA-4, monthA, dayA) / 1000;
+
+const periodRange = ["全ての期間の記事","1ヶ月以内の記事","3ヶ月以内の記事","6ヶ月以内の記事","12ヶ月以内の記事"];
+let targetRange = 0;
+
+const periodLength = periodRange.length;
+for (let i = 0; i < periodLength; i++) {
+    const listedPeriod = document.getElementById('range-id');
+    const optionName = document.createElement('option');
+    optionName.value = periodRange[i];
+    optionName.textContent = periodRange[i];
+    listedPeriod.appendChild(optionName);
+}
+
+function getUTC(d) {
+    return d === 1 ? utc_1m :
+           d === 2 ? utc_3m :
+           d === 3 ? utc_6m :
+           d === 4 ? utc_1y :
+           utc_4y;
+}
+
+function getLinkType(d) {
+    return d === "1" ? '公式サイト' :
+           d === "2" ? '公式Instagram' :
+           d === "3" ? '公式Twitter' :
+           '-';
+}
 
 function renderListings(features) {
     const listingBox = document.createElement('p');
@@ -36,7 +68,7 @@ function renderListings(features) {
         listingPOl.appendChild(listingBox);
         for (const feature of features) {
             const itemLink = document.createElement('a');
-            const label = `${feature.properties.name_poi} (${feature.properties.blog_source})`;
+            const label = `${feature.properties.name_poi} (${feature.properties.blog_source} ${feature.properties.date_text})`;
             itemLink.href = feature.properties.link_source;
             itemLink.target = '_blank';
             itemLink.textContent = label;
@@ -71,7 +103,7 @@ const map = new maplibregl.Map({
 map.on('load', function () {
     map.addSource('poi', {
         'type': 'geojson',
-        'data': './app/data/poi.geojson?20230527',
+        'data': './app/data/poi.geojson?20230707',
     });
     map.addLayer({
         'id': 'poi_pseudo',
@@ -145,8 +177,10 @@ map.on('load', function () {
             [point.x - 30, point.y - 30],
             [point.x + 30, point.y + 30]
         ];
-        const uniquePOI = map.queryRenderedFeatures({ layers: ['poi_pseudo'] });
-        const extentPOI = map.queryRenderedFeatures(bbox, { layers: ['poi_pseudo'] });
+        
+        targetRange = selectedRange.selectedIndex;
+        const uniquePOI = map.queryRenderedFeatures({ layers: ['poi_pseudo'], filter: ['>=', ["to-number", ['get', 'date_stamp']], getUTC(targetRange)] });
+        const extentPOI = map.queryRenderedFeatures(bbox, { layers: ['poi_pseudo'], filter: ['>=', ["to-number", ['get', 'date_stamp']], getUTC(targetRange)] });
         
         const filtered_unique = [];
         const filtered_extent = [];
@@ -175,26 +209,26 @@ map.on('load', function () {
             }
         } else {
             renderListings(extentPOI);
-            map.setFilter('poi_heat', ['has', 'fid']);
-            map.setFilter('poi_text', ['has', 'fid']);
-            map.setFilter('poi_point', ['has', 'fid']);
+            map.setFilter('poi_heat', ['>=', ["to-number", ['get', 'date_stamp']], getUTC(targetRange)]);
+            map.setFilter('poi_text', ['>=', ["to-number", ['get', 'date_stamp']], getUTC(targetRange)]);
+            map.setFilter('poi_point', ['>=', ["to-number", ['get', 'date_stamp']], getUTC(targetRange)]);
         }
     } 
 
     map.on('moveend', generateList);
     filterPOl.addEventListener('change', generateList);
     clearBtn.addEventListener('click', generateList); //this is fired right after the onclick event of clearButton
+    selectedRange.addEventListener('change', generateList);
 
     map.on('click', 'poi_point', function (e){
         map.panTo(e.lngLat,{duration:1000});
     
         let popupContent = '';
-        popupContent += '<table class="tablestyle02"><tr><th class="main">ブログ記事</th><th class="remarks">備考</th></tr>'
+        popupContent += '<table class="tablestyle02"><tr><th class="main">ブログ記事</th></tr>';
         map.queryRenderedFeatures(e.point, { layers: ['poi_point']}).forEach(function (feat){
-            const blogContent = feat.properties["name_poi"] + ' (' + feat.properties["blog_source"] + ') ' + feat.properties["title_source"];
-            popupContent += '<tr><td class="main"><a href="' + feat.properties["link_source"] + '" target="_blank" rel="noopener">' + (blogContent.length < 38 ? blogContent : blogContent.slice(0,36) + '...') + '</a></td>';
-            popupContent += '<td class="remarks"><a href="https://www.google.com/maps/search/?api=1&query=' + feat.geometry["coordinates"][1].toFixed(5)+',' + feat.geometry["coordinates"][0].toFixed(5) + '&zoom=18" target="_blank" rel="noopener">Googleマップ</a>';
-            popupContent += (feat.properties["url_flag"] === '0' ? '': '<br><a href="'+feat.properties["url_link"]+'" target="_blank" rel="noopener">'+getLinkType(feat.properties["url_flag"])+'</a>')+'</td></tr>';
+            const blogContent = '<a href="' + feat.properties["link_source"] + '" target="_blank" rel="noopener">' + feat.properties["blog_source"] + '(' + feat.properties["date_text"] + ')<br>' + feat.properties["title_source"] + '</a>';
+            const linkOfficial = (feat.properties["url_flag"] === '0' ? '': '<a href="'+feat.properties["url_link"]+'" target="_blank" rel="noopener">'+getLinkType(feat.properties["url_flag"])+'</a> | ') + '<a href="https://www.google.com/maps/search/?api=1&query=' + feat.geometry["coordinates"][1].toFixed(5)+',' + feat.geometry["coordinates"][0].toFixed(5) + '&zoom=18" target="_blank" rel="noopener">Google Map</a><hr>';
+            popupContent += '<tr><td class="main"><details><summary>' + feat.properties["name_poi"] + '</summary>' + linkOfficial + '</details>' + blogContent + '</td></tr>';
         });
         popupContent += '</table>';
         

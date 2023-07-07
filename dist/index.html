@@ -6,7 +6,7 @@
         <meta name="viewport" content="initial-scale=1, user-scalable=no, maximum-scale=1,width=device-width" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="description" content="地域ブロガーおすすめスポットの地図です。柏市、流山市、野田市、守谷市、松戸市などの地域ブログが発信している記事を地図とリンクさせて表示します。">
+        <meta name="description" content="地域ブロガーおすすめスポットの地図です。柏市、流山市、野田市、松戸市、我孫子市、守谷市などの地域ブログが発信している記事を地図とリンクさせて表示します。">
         <title>ちーぶろマップ - 柏・流山周辺の地域ブロガーおすすめスポットの地図</title>
     </head>
     <body>
@@ -15,14 +15,21 @@
         <div id="buttons">
             <button type="button" class="btnctrl" id="b_description">このマップ<br>について</button>
             <button type="button" class="btnctrl" id="b_location">現在地を<br>しらべる</button>
-            <button type="button" class="btnctrl" id="b_filter">キーワード<br>フィルター</button>
+            <button type="button" class="btnctrl" id="b_filter">フィルター<br>絞り込み</button>
             <button type="button" class="btnctrl" id="b_listing">記事一覧<br>の表示</button>
         </div>
-        <div id="filterbox" class="filter-overlay">
-            <fieldset>
-                <input id="filterinput" type="text" placeholder="検索ワードを入力（例：カフェ）">
-                <div id="clearButton" class="clearbutton" onclick='filterinput.value="";'> X </div>
-            </fieldset>
+        <div id="filterbox" class="filter-overlay top">
+            <div class="filter-overlay-inner">
+                <fieldset>
+                    <input id="filterinput" type="text" placeholder="検索ワードを入力（例：カフェ）">
+                    <div id="clearButton" class="clearbutton" onclick='filterinput.value="";'> X </div>
+                </fieldset>
+                <fieldset>
+                    <div id="time-range" class="select-overlay">
+                        <select id="range-id" name="range-id" class="range-select"></select>
+                    </div>
+                </fieldset>
+            </div>
         </div>
         <div id="feature-list" class="list-overlay"></div>
         <div id="description" class="map-overlay"></div>
@@ -39,6 +46,6 @@
                 <path d="M14.01 5.75999C16.29 6.41999 18.09 8.22 18.76 10.5" stroke="rgba(100,100,100,0.5)" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         </div>
-        <script src="app/main.js?20230527"></script>
+        <script src="app/main.js?20230707"></script>
     </body>
 </html>
