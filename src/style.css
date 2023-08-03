@@ -74,6 +74,7 @@ p.remarks {
     top: 50px;
     left: 0;
     padding: 5px;
+    z-index: 1;
 }
      
 .filter-overlay .filter-overlay-inner {
@@ -208,7 +209,8 @@ table.tablestyle02 tr:nth-child(odd) td {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     padding: 8px 10px;
     overflow-y: scroll !important;
-    max-height: 270px;
+    max-height: 210px;
+    z-index: 2;
 }
 
 .t-popup .maplibregl-popup-anchor-right .maplibregl-popup-tip {
