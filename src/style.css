@@ -166,7 +166,7 @@ table.tablestyle02 th {
     color: #fff;
     background-color: #52c2d0;
     text-align: center;
-    padding: 4px;
+    padding: 2px;
     font-size: 13px; 
     font-weight: 400; 
     font-family: Helvetica, "游ゴシック体", YuGothic, "YuGothic M", sans-serif;
@@ -191,8 +191,12 @@ table.tablestyle02 td {
 
 table.tablestyle02 td.main{
     text-align: left;
-    line-height: 24px;
-    font-size: 14px; font-weight: 400; font-family: Helvetica, "游ゴシック体", YuGothic, "YuGothic M", sans-serif;
+    line-height: 22px;
+    font-size: 13px; font-weight: 400; font-family: Helvetica, "游ゴシック体", YuGothic, "YuGothic M", sans-serif;
+}
+
+table.tablestyle02 td.main summary{
+    font-size: 14px;
 }
 
 table.tablestyle02 td.remarks{
@@ -269,4 +273,4 @@ table.tablestyle02 tr:nth-child(odd) td {
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 1;
-  }  
+}  

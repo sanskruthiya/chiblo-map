@@ -7,15 +7,6 @@ const init_zoom = 11.5;
 const init_bearing = 0;
 const init_pitch = 0;
 
-const map_description = document.getElementById('description');
-map_description.innerHTML += '<h2>ちーぶろマップ</h2>';
-map_description.innerHTML += '<p class="tipstyle01">柏・流山・松戸・野田・我孫子・守谷周辺の地域ブロガーの方々が発信している記事を地図上の場所とリンクさせて表示するマップです。</p>';
-map_description.innerHTML += '<p class="tipstyle01">この説明を閉じるには、もう一度「このマップについて」ボタンを押してください。</p>';
-map_description.innerHTML += '<p class="tipstyle01">地図上の水色の円をクリック/タップすると、その場所のお店やおすすめスポットのブログ記事が一覧で表示されます。</p>';
-map_description.innerHTML += '<p class="tipstyle01">ご意見等は<a href="https://form.run/@party--1681740493" target="_blank">問い合わせフォーム（外部サービス）</a>からお知らせください。</p>';
-map_description.innerHTML += '<p class="tipstyle01">更新情報<ul><li>2023/8/3 記事を追加しました。（掲載数：874件）</li><li>2023/7/7 記事公開日によるフィルター機能を追加しました。</li><li>2023/5/16 キーワードフィルターとリスト表示機能を追加しました。</li><li>2023/4/18 問い合わせフォームを設定しました。</li></ul></p>';
-map_description.innerHTML += '<hr><p class="remarks"><a href="https://twitter.com/Smille_feuille" target="_blank">作成者Twitter</a> | View code on <a href="https://github.com/sanskruthiya/chiblo-map">Github</a></p>';
-
 const filterPOl = document.getElementById('filterinput');
 const listingPOl = document.getElementById('feature-list');
 const clearBtn = document.getElementById('clearButton');
@@ -153,7 +144,7 @@ map.on('load', function () {
             'heatmap-weight': ['interpolate',['linear'],['get', 'count'],1,1,10,50],
             'heatmap-intensity': ['interpolate',['linear'],['zoom'],5,1,20,20],
             'heatmap-color': ['interpolate',['linear'],['heatmap-density'],0,'rgba(200,255,255,0)', 0.4, '#e0ffff', 1, '#00bfff'],
-            'heatmap-radius': ['interpolate',['linear'],['zoom'],5,1,20,30],
+            'heatmap-radius': ['interpolate',['linear'],['zoom'],5,1,20,15],
             'heatmap-opacity': ['interpolate',['linear'],['zoom'],5,1,12,0.6,20,0]
         },  
         'layout': {
