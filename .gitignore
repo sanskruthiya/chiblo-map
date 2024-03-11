@@ -1,4 +1,5 @@
 node_modules/
 package-lock.json
 webpack.config.js
+dist/app/data/backup/
 .DS_Store

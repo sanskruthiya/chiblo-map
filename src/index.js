@@ -11,19 +11,20 @@ const filterPOl = document.getElementById('filterinput');
 const listingPOl = document.getElementById('feature-list');
 const clearBtn = document.getElementById('clearButton');
 const selectedRange = document.querySelector('.range-select');
+const loadingCount = document.getElementById("loading-count");
 
 const dateA = new Date(); 
 const yearA = dateA.getFullYear();
 const monthA = dateA.getMonth();
 const dayA = dateA.getDate();
 
-const utc_1m = Date.UTC(yearA, monthA-1, dayA) / 1000;
 const utc_3m = Date.UTC(yearA, monthA-3, dayA) / 1000;
 const utc_6m = Date.UTC(yearA, monthA-6, dayA) / 1000;
 const utc_1y = Date.UTC(yearA-1, monthA, dayA) / 1000;
-const utc_4y = Date.UTC(yearA-4, monthA, dayA) / 1000;
+const utc_3y = Date.UTC(yearA-3, monthA, dayA) / 1000;
+const utc_5y = Date.UTC(yearA-5, monthA, dayA) / 1000;
 
-const periodRange = ["全ての期間の記事","1ヶ月以内の記事","3ヶ月以内の記事","6ヶ月以内の記事","12ヶ月以内の記事"];
+const periodRange = ["全ての期間の記事","3ヶ月以内の記事","6ヶ月以内の記事","12ヶ月以内の記事","3年以内の記事"];
 let targetRange = 0;
 
 const periodLength = periodRange.length;
@@ -36,11 +37,11 @@ for (let i = 0; i < periodLength; i++) {
 }
 
 function getUTC(d) {
-    return d === 1 ? utc_1m :
-           d === 2 ? utc_3m :
-           d === 3 ? utc_6m :
-           d === 4 ? utc_1y :
-           utc_4y;
+    return d === 1 ? utc_3m :
+           d === 2 ? utc_6m :
+           d === 3 ? utc_1y :
+           d === 4 ? utc_3y :
+           utc_5y;
 }
 
 function getLinkType(d) {
@@ -121,7 +122,7 @@ map.on('load', function () {
         'source': {'type':'geojson','data':poi},
         'minzoom': 5,
         'layout': {
-            'visibility': 'visible', 
+            'visibility': 'visible',
         },
         'paint': {
             'circle-color':'transparent',
@@ -162,13 +163,17 @@ map.on('load', function () {
             'text-offset': [0,0],
             'text-anchor': 'top',
             'icon-image':'',
-            'text-ignore-placement':false,
+            //'symbol-spacing': 250,
+            'symbol-sort-key':['get', 'date_stamp'],
+            'symbol-z-order': "viewport-y",//"source"
+            'text-allow-overlap': false,
+            'text-ignore-placement': false,
             'text-size': ['interpolate',['linear'],['zoom'],8,10,12,10,20,12],
             'text-font': ['Open Sans Semibold','Arial Unicode MS Bold']
         },
         'paint': {'text-color': '#333','text-halo-color': '#fff','text-halo-width': 1}
     });
-
+    
     let fgb_src_pd = map.getSource('poi_pseudo');
     let fgb_src_pt = map.getSource('poi_point');
     let fgb_src_ht = map.getSource('poi_heat');
@@ -179,11 +184,18 @@ map.on('load', function () {
         let meta, iter = flatgeobuf.deserialize(response.body, null, m => meta = m)
         for await (let feature of iter) {
           poi.features.push(feature)
+          loadingCount.textContent = ((poi.features.length / meta.featuresCount) * 100).toFixed(0);
           if (poi.features.length == meta.featuresCount || (poi.features.length % updateCount) == 0) {
             fgb_src_pd.setData(poi);
             fgb_src_pt.setData(poi);
             fgb_src_ht.setData(poi);
             fgb_src_tx.setData(poi);
+          }
+          if (poi.features.length == meta.featuresCount) {
+            setTimeout(function () {
+                document.getElementById("titlewindow").style.display = "none";
+                map.zoomTo(12, {duration: 1000});
+            }, 500); // 0.5秒後に実行する（ミリ秒単位）
           }
         }
       }
@@ -256,8 +268,6 @@ map.on('load', function () {
         .setHTML(popupContent)
         .addTo(map);
     });
-
-    map.zoomTo(12, {duration: 1000});
 });
 
 document.getElementById('b_location').style.backgroundColor = "#fff";
@@ -274,6 +284,10 @@ document.getElementById('filterbox').style.display ="block";
 document.getElementById('b_listing').style.backgroundColor = "#2c7fb8";
 document.getElementById('b_listing').style.color = "#fff";
 document.getElementById('feature-list').style.display ="block";
+
+document.getElementById("hide-title-button").addEventListener("click", function () {
+    document.getElementById("titlewindow").style.display = "none";
+});
 
 document.getElementById('b_filter').addEventListener('click', function () {
     const visibility = document.getElementById('filterbox');
