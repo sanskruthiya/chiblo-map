@@ -180,7 +180,9 @@ map.on('load', function () {
     let fgb_src_tx = map.getSource('poi_text');
     
     let loadFGB_poi = async (url, updateCount) => {
-        const response = await fetch(url);
+        let updatedURL = `${url}?${yearA}${monthA}${dayA}`;//added URL parameter to get the latest dataset.
+        //const response = await fetch(url);
+        const response = await fetch(updatedURL);
         let meta, iter = flatgeobuf.deserialize(response.body, null, m => meta = m)
         for await (let feature of iter) {
           poi.features.push(feature)
@@ -195,7 +197,7 @@ map.on('load', function () {
             setTimeout(function () {
                 document.getElementById("titlewindow").style.display = "none";
                 map.zoomTo(12, {duration: 1000});
-            }, 500); // 0.5秒後に実行する（ミリ秒単位）
+            }, 500); 
           }
         }
       }
