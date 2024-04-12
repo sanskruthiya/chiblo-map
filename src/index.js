@@ -54,18 +54,42 @@ function getLinkType(d) {
 function renderListings(features) {
     const listingBox = document.createElement('p');
     listingPOl.innerHTML = '';
+
+    const existingToggleButton = document.getElementById('toggle-list-button'); //This returns null on the first render.
+    if (existingToggleButton) {existingToggleButton.remove();}
+    
+    const toggleButton = document.createElement('button');
+    toggleButton.textContent = '▲ 広げる';
+    toggleButton.id = 'toggle-list-button';
+    toggleButton.classList.add('toggle-button');
+    if (listingPOl.classList.contains('large-screen')) {
+        toggleButton.textContent = '▼ 戻す';
+    } else {
+        toggleButton.textContent = '▲ 広げる';
+    }
+    
+    toggleButton.addEventListener('click', function() {
+        listingPOl.classList.toggle('large-screen');
+        if (listingPOl.classList.contains('large-screen')) {
+            toggleButton.textContent = '▼ 戻す';
+        } else {
+            toggleButton.textContent = '▲ 広げる';
+        }
+    });
+    listingPOl.insertBefore(toggleButton, listingPOl.firstChild);
     
     if (features.length) { 
         listingBox.textContent = 'マップ中央付近の記事数：'+features.length;
         listingPOl.appendChild(listingBox);
         for (const feature of features) {
             const itemLink = document.createElement('a');
-            const label = `${feature.properties.name_poi} (${feature.properties.blog_source} ${feature.properties.date_text})`;
+            const label = `<strong>${feature.properties.name_poi}</strong> (${feature.properties.blog_source} ${feature.properties.date_text}) ${feature.properties.title_source}`;
             itemLink.href = feature.properties.link_source;
             itemLink.target = '_blank';
-            itemLink.textContent = label;
+            //itemLink.textContent = label;
+            itemLink.innerHTML = label;
             listingPOl.appendChild(itemLink);
-            listingPOl.append(document.createElement("br"));
+            listingPOl.append(document.createElement("hr"));
         }
         filterPOl.parentNode.style.display = 'block';
     } else if (features.length === 0 && filterPOl.value !== "") {
@@ -180,7 +204,8 @@ map.on('load', function () {
     let fgb_src_tx = map.getSource('poi_text');
     
     let loadFGB_poi = async (url, updateCount) => {
-        let updatedURL = `${url}?${yearA}${monthA}${dayA}`;//added URL parameter to get the latest dataset.
+        let updatedURL = `${url}?${yearA}${monthA+1}${dayA}`;//added URL parameter to get the latest dataset.
+        console.log(updatedURL);
         //const response = await fetch(url);
         const response = await fetch(updatedURL);
         let meta, iter = flatgeobuf.deserialize(response.body, null, m => meta = m)

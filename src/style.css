@@ -105,6 +105,8 @@ p.remarks {
     padding: 5px;
     margin: 0;
     box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
 }
      
 .filter-overlay-inner input {
@@ -143,7 +145,7 @@ p.remarks {
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 3px;
     border:1px solid #999;
-    line-height: 20px;
+    line-height: 18px;
 }
 
 .list-overlay p {
@@ -151,7 +153,28 @@ p.remarks {
 }
 
 .list-overlay a {
-    color:#333; font-size: 13px; font-weight: normal; font-family: Helvetica, "游ゴシック体", YuGothic, "YuGothic M", sans-serif;
+    color:#333; text-decoration-color: #52c2d0; font-size: 13px; font-weight: normal; font-family: Helvetica, "游ゴシック体", YuGothic, "YuGothic M", sans-serif;
+}
+
+.list-overlay.large-screen {
+    max-height: 70%;
+    min-height: 18%;
+    line-height: 21px;
+    z-index: 4;
+}
+
+.list-overlay.large-screen a {
+    font-size: 14px;
+}
+
+.toggle-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 10px;
+    border:1px solid #999;
+    border-radius: 3px;
+    background-color: #fff;
 }
 
 table.tablestyle02 {
