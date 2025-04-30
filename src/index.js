@@ -11,6 +11,7 @@ const filterPOl = document.getElementById('filterinput');
 const listingPOl = document.getElementById('feature-list');
 const clearBtn = document.getElementById('clearButton');
 const selectedRange = document.querySelector('.range-select');
+const selectedCategory = document.querySelector('.category-select');
 const loadingCount = document.getElementById("loading-count");
 
 const dateA = new Date(); 
@@ -18,14 +19,34 @@ const yearA = dateA.getFullYear();
 const monthA = dateA.getMonth();
 const dayA = dateA.getDate();
 
+const utc_1m = Date.UTC(yearA, monthA-1, dayA) / 1000;
 const utc_3m = Date.UTC(yearA, monthA-3, dayA) / 1000;
 const utc_6m = Date.UTC(yearA, monthA-6, dayA) / 1000;
 const utc_1y = Date.UTC(yearA-1, monthA, dayA) / 1000;
 const utc_3y = Date.UTC(yearA-3, monthA, dayA) / 1000;
 const utc_5y = Date.UTC(yearA-5, monthA, dayA) / 1000;
 
-const periodRange = ["全ての期間の記事","3ヶ月以内の記事","6ヶ月以内の記事","12ヶ月以内の記事","3年以内の記事"];
+const periodRange = ["全ての期間の記事","1ヶ月以内の記事","3ヶ月以内の記事","6ヶ月以内の記事","12ヶ月以内の記事","3年以内の記事"];
 let targetRange = 0;
+
+// カテゴリの定義
+const categories = [
+    { value: '', label: '全てのカテゴリ' },
+    { value: 'a', label: '子連れに優しい場所' },
+    { value: 'b', label: 'お洒落なカフェ' },
+    { value: 'c', label: 'ペットOK' }
+];
+let targetCategory = '';
+
+// カテゴリドロップダウンの初期化
+const categoryLength = categories.length;
+for (let i = 0; i < categoryLength; i++) {
+    const listedCategory = document.getElementById('category-id');
+    const optionName = document.createElement('option');
+    optionName.value = categories[i].value;
+    optionName.textContent = categories[i].label;
+    listedCategory.appendChild(optionName);
+}
 
 const periodLength = periodRange.length;
 for (let i = 0; i < periodLength; i++) {
@@ -37,10 +58,11 @@ for (let i = 0; i < periodLength; i++) {
 }
 
 function getUTC(d) {
-    return d === 1 ? utc_3m :
-           d === 2 ? utc_6m :
-           d === 3 ? utc_1y :
-           d === 4 ? utc_3y :
+    return d === 1 ? utc_1m :
+           d === 2 ? utc_3m :
+           d === 3 ? utc_6m :
+           d === 4 ? utc_1y :
+           d === 5 ? utc_3y :
            utc_5y;
 }
 
@@ -112,6 +134,7 @@ const map = new maplibregl.Map({
     maxZoom: 21,
     maxBounds: [[110.0000, 25.0000],[170.0000, 50.0000]],
     bearing: init_bearing,
+    hash: true, // URLに現在の地図状態を含める
     pitch: init_pitch,
     attributionControl:true
 });
@@ -236,9 +259,29 @@ map.on('load', function () {
             [point.x + 30, point.y + 30]
         ];
         
+        // 期間とカテゴリの選択状態を取得
         targetRange = selectedRange.selectedIndex;
+        targetCategory = selectedCategory.value;
+        console.log('Selected category:', targetCategory); // デバッグ用
+
+        // 既存のフィルタリング処理（参考用にコメントアウト）
+        /*
         const uniquePOI = map.queryRenderedFeatures({ layers: ['poi_pseudo'], filter: ['>=', ["to-number", ['get', 'date_stamp']], getUTC(targetRange)] });
         const extentPOI = map.queryRenderedFeatures(bbox, { layers: ['poi_pseudo'], filter: ['>=', ["to-number", ['get', 'date_stamp']], getUTC(targetRange)] });
+        */
+
+        // フィルター条件の作成
+        let filters = ['all',
+            ['>=', ["to-number", ['get', 'date_stamp']], getUTC(targetRange)]
+        ];
+
+        // カテゴリフィルターの追加
+        if (targetCategory !== '') {
+            filters.push(['in', targetCategory, ['get', 'flag_poi']]);
+        }
+
+        const uniquePOI = map.queryRenderedFeatures({ layers: ['poi_pseudo'], filter: filters });
+        const extentPOI = map.queryRenderedFeatures(bbox, { layers: ['poi_pseudo'], filter: filters });
         
         const filtered_unique = [];
         const filtered_extent = [];
@@ -267,9 +310,17 @@ map.on('load', function () {
             }
         } else {
             renderListings(extentPOI);
+            // 既存のフィルタリング処理（参考用にコメントアウト）
+            /*
             map.setFilter('poi_heat', ['>=', ["to-number", ['get', 'date_stamp']], getUTC(targetRange)]);
             map.setFilter('poi_text', ['>=', ["to-number", ['get', 'date_stamp']], getUTC(targetRange)]);
             map.setFilter('poi_point', ['>=', ["to-number", ['get', 'date_stamp']], getUTC(targetRange)]);
+            */
+            
+            // 新しいフィルタリング処理（カテゴリフィルターを含む）
+            map.setFilter('poi_heat', filters);
+            map.setFilter('poi_text', filters);
+            map.setFilter('poi_point', filters);
         }
     } 
 
@@ -277,6 +328,7 @@ map.on('load', function () {
     filterPOl.addEventListener('change', generateList);
     clearBtn.addEventListener('click', generateList); //this is fired right after the onclick event of clearButton
     selectedRange.addEventListener('change', generateList);
+    selectedCategory.addEventListener('change', generateList);
 
     map.on('click', 'poi_point', function (e){
         map.panTo(e.lngLat,{duration:1000});
