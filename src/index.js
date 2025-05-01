@@ -2,10 +2,26 @@ import * as maplibregl from "maplibre-gl";
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './style.css';
 
-const init_coord = [139.95, 35.89];
-const init_zoom = 11.5;
-const init_bearing = 0;
-const init_pitch = 0;
+// URLハッシュから初期座標を取得
+// ハッシュ形式: #zoom/latitude/longitude
+let init_coord = [139.95, 35.89];
+let init_zoom = 11.5;
+let init_bearing = 0;
+let init_pitch = 0;
+
+const hash = window.location.hash;
+if (hash) {
+    // ハッシュ値を解析
+    const hashParts = hash.substring(1).split('/');
+    if (hashParts.length >= 3) {
+        init_zoom = parseFloat(hashParts[0])-0.5;
+        const lat = parseFloat(hashParts[1]);
+        const lng = parseFloat(hashParts[2]);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            init_coord = [lng, lat];
+        }
+    }
+}
 
 const filterPOl = document.getElementById('filterinput');
 const listingPOl = document.getElementById('feature-list');
@@ -212,6 +228,7 @@ map.on('load', function () {
             'icon-image':'',
             //'symbol-spacing': 250,
             'symbol-sort-key':['get', 'date_stamp'],
+            //'symbol-sort-key': ['*', ['get', 'fid'], 1], // 初期値はそのままのPOI ID順
             'symbol-z-order': "viewport-y",//"source"
             'text-allow-overlap': false,
             'text-ignore-placement': false,
@@ -244,7 +261,7 @@ map.on('load', function () {
           if (poi.features.length == meta.featuresCount) {
             setTimeout(function () {
                 document.getElementById("titlewindow").style.display = "none";
-                map.zoomTo(12, {duration: 1000});
+                map.zoomTo(init_zoom+0.5, {duration: 1000});
             }, 500); 
           }
         }
@@ -334,10 +351,10 @@ map.on('load', function () {
         map.panTo(e.lngLat,{duration:1000});
     
         let popupContent = '';
-        popupContent += '<table class="tablestyle02"><tr><th class="main">ブログ記事</th></tr>';
+        popupContent += '<table class="tablestyle02"><tr><th class="main">ブログ記事 <small style="font-weight: normal; font-size: 11px; color: #fff;">（🔗場所名をクリックで追加リンク表示）</small></th></tr>';
         map.queryRenderedFeatures(e.point, { layers: ['poi_point']}).forEach(function (feat){
             const blogContent = '<a href="' + feat.properties["link_source"] + '" target="_blank" rel="noopener">' + feat.properties["blog_source"] + '（' + feat.properties["date_text"] + '）<br>' + feat.properties["title_source"] + '</a>';
-            const linkOfficial = (feat.properties["url_flag"] === '0' ? '': '<a href="'+feat.properties["url_link"]+'" target="_blank" rel="noopener">'+getLinkType(feat.properties["url_flag"])+'</a> | ') + '<a href="https://www.google.com/maps/search/?api=1&query=' + feat.geometry["coordinates"][1].toFixed(5)+',' + feat.geometry["coordinates"][0].toFixed(5) + '&zoom=18" target="_blank" rel="noopener">Google Map</a><hr>';
+            const linkOfficial = (feat.properties["url_flag"] === '0' ? '': '<a href="'+feat.properties["url_link"]+'" target="_blank" rel="noopener">🏠 '+getLinkType(feat.properties["url_flag"])+'</a> ／ ') + '<a href="https://www.google.com/maps/search/?api=1&query=' + feat.geometry["coordinates"][1].toFixed(5)+',' + feat.geometry["coordinates"][0].toFixed(5) + '&zoom=18" target="_blank" rel="noopener">🗺️ Google Map</a><hr>';
             popupContent += '<tr><td class="main"><details><summary>' + feat.properties["name_poi"] + '</summary>' + linkOfficial + '</details>' + blogContent + '</td></tr>';
         });
         popupContent += '</table>';

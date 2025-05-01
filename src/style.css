@@ -44,6 +44,45 @@ hr {
     width: 98%;
 }
 
+/* detailsのスタイル */
+table.tablestyle02 details {
+    margin-bottom: 8px;
+}
+
+table.tablestyle02 details summary {
+    position: relative;
+    padding-left: 20px;
+    cursor: pointer;
+    outline: none;
+    list-style: none;
+}
+
+/* デフォルトの矢印を非表示 */
+table.tablestyle02 details summary::-webkit-details-marker {
+    display: none;
+}
+
+table.tablestyle02 details summary::marker {
+    display: none;
+}
+
+/* カスタムの矢印を追加 */
+table.tablestyle02 details summary::before {
+    content: '🔗';  /* ‹から❯に変更 */
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #2c7fb8;
+    font-size: 16px;
+    transition: transform 0.2s;
+}
+
+/* 開いた時の矢印の回転 */
+table.tablestyle02 details[open] summary::before {
+    transform: translateY(-50%) rotate(90deg);
+}
+
 p.tipstyle01 {
     color:#111; font-size: 13px; font-weight: normal; font-family: Helvetica, "游ゴシック体", YuGothic, "YuGothic M", sans-serif;
 }
@@ -196,6 +235,7 @@ table.tablestyle02 th {
 }
 
 table.tablestyle02 th.main {
+    font-weight: 600; 
     width: 360px;
     text-align: center;
 }
