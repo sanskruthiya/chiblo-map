@@ -8,7 +8,7 @@ let init_coord = [139.95, 35.89];
 let init_zoom = 11.5;
 let init_bearing = 0;
 let init_pitch = 0;
-
+/*
 const hash = window.location.hash;
 if (hash) {
     // ハッシュ値を解析
@@ -22,7 +22,7 @@ if (hash) {
         }
     }
 }
-
+*/
 const filterPOl = document.getElementById('filterinput');
 const listingPOl = document.getElementById('feature-list');
 const clearBtn = document.getElementById('clearButton');
@@ -50,7 +50,7 @@ const categories = [
     { value: '', label: '全てのカテゴリ' },
     { value: 'a', label: '子連れに優しい場所' },
     { value: 'b', label: 'お洒落なカフェ' },
-    { value: 'c', label: 'ペットOK' }
+    { value: 'c', label: 'ペットOKのお店' }
 ];
 let targetCategory = '';
 
@@ -150,18 +150,13 @@ const map = new maplibregl.Map({
     maxZoom: 21,
     maxBounds: [[110.0000, 25.0000],[170.0000, 50.0000]],
     bearing: init_bearing,
-    hash: true, // URLに現在の地図状態を含める
+    hash: false, // URLに現在の地図状態を含めない
     pitch: init_pitch,
     attributionControl:true
 });
 
 map.on('load', function () {
-    /*
-    map.addSource('poi', {
-        'type': 'geojson',
-        'data': './app/data/poi.geojson?20230707',
-    });
-    */
+
     const poi = {'type': 'FeatureCollection','features': []}
 
     map.addLayer({
@@ -279,13 +274,6 @@ map.on('load', function () {
         // 期間とカテゴリの選択状態を取得
         targetRange = selectedRange.selectedIndex;
         targetCategory = selectedCategory.value;
-        console.log('Selected category:', targetCategory); // デバッグ用
-
-        // 既存のフィルタリング処理（参考用にコメントアウト）
-        /*
-        const uniquePOI = map.queryRenderedFeatures({ layers: ['poi_pseudo'], filter: ['>=', ["to-number", ['get', 'date_stamp']], getUTC(targetRange)] });
-        const extentPOI = map.queryRenderedFeatures(bbox, { layers: ['poi_pseudo'], filter: ['>=', ["to-number", ['get', 'date_stamp']], getUTC(targetRange)] });
-        */
 
         // フィルター条件の作成
         let filters = ['all',
@@ -327,12 +315,6 @@ map.on('load', function () {
             }
         } else {
             renderListings(extentPOI);
-            // 既存のフィルタリング処理（参考用にコメントアウト）
-            /*
-            map.setFilter('poi_heat', ['>=', ["to-number", ['get', 'date_stamp']], getUTC(targetRange)]);
-            map.setFilter('poi_text', ['>=', ["to-number", ['get', 'date_stamp']], getUTC(targetRange)]);
-            map.setFilter('poi_point', ['>=', ["to-number", ['get', 'date_stamp']], getUTC(targetRange)]);
-            */
             
             // 新しいフィルタリング処理（カテゴリフィルターを含む）
             map.setFilter('poi_heat', filters);
@@ -347,8 +329,42 @@ map.on('load', function () {
     selectedRange.addEventListener('change', generateList);
     selectedCategory.addEventListener('change', generateList);
 
+    // クリックエフェクトを生成する関数
+    function createRippleEffect(e, lngLat) {
+        const canvas = map.getCanvas();
+        const rect = canvas.getBoundingClientRect();
+        const point = map.project(lngLat);
+        const ripple = document.createElement('div');
+        ripple.className = 'ripple-effect';
+        ripple.style.left = (point.x - 10 + rect.left) + 'px';
+        ripple.style.top = (point.y - 10 + rect.top) + 'px';
+        ripple.style.width = '30px';
+        ripple.style.height = '30px';
+        document.body.appendChild(ripple);
+
+        setTimeout(() => {
+            ripple.remove();
+        }, 1000); // アニメーションの長さに合わせて調整
+    }
+
+    // マップ全体のクリックイベント
+    map.on('click', function(e) {
+        // POIポイント以外のクリックのみここでエフェクトを表示
+        const features = map.queryRenderedFeatures(e.point, { layers: ['poi_point'] });
+        if (features.length === 0) {
+            createRippleEffect(e, e.lngLat);
+        }
+    });
+
+    // POIポイントのクリックイベント
     map.on('click', 'poi_point', function (e){
-        map.panTo(e.lngLat,{duration:1000});
+        // マップの移動を開始
+        map.panTo(e.lngLat, {duration:1000});
+        
+        // マップの移動完了を待ってからエフェクトを表示
+        setTimeout(() => {
+            createRippleEffect(e, e.lngLat);
+        }, 800);
     
         let popupContent = '';
         popupContent += '<table class="tablestyle02"><tr><th class="main">ブログ記事 <small style="font-weight: normal; font-size: 11px; color: #fff;">（🔗場所名をクリックで追加リンク表示）</small></th></tr>';

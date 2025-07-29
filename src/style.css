@@ -68,7 +68,7 @@ table.tablestyle02 details summary::marker {
 
 /* カスタムの矢印を追加 */
 table.tablestyle02 details summary::before {
-    content: '🔗';  /* ‹から❯に変更 */
+    content: '🔗';  /* ‹から記号に変更 */
     position: absolute;
     left: 0;
     top: 50%;
@@ -222,6 +222,29 @@ table.tablestyle02 {
     border-collapse: collapse; 
     border-spacing:1px; 
     border:1px solid #999;
+}
+
+/* クリック波紋エフェクト */
+.ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(82, 194, 208, 0.6);
+    border: 2px solid rgba(82, 194, 208, 0.8);
+    transform: scale(0);
+    pointer-events: none;
+    animation: ripple 0.8s ease-out;
+    z-index: 1000;
+}
+
+@keyframes ripple {
+    from {
+        transform: scale(0);
+        opacity: 0.8;
+    }
+    to {
+        transform: scale(6);
+        opacity: 0;
+    }
 }
 
 table.tablestyle02 th {
