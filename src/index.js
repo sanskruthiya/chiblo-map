@@ -2,27 +2,11 @@ import * as maplibregl from "maplibre-gl";
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './style.css';
 
-// URLハッシュから初期座標を取得
-// ハッシュ形式: #zoom/latitude/longitude
 let init_coord = [139.95, 35.89];
 let init_zoom = 11.5;
 let init_bearing = 0;
 let init_pitch = 0;
-/*
-const hash = window.location.hash;
-if (hash) {
-    // ハッシュ値を解析
-    const hashParts = hash.substring(1).split('/');
-    if (hashParts.length >= 3) {
-        init_zoom = parseFloat(hashParts[0])-0.5;
-        const lat = parseFloat(hashParts[1]);
-        const lng = parseFloat(hashParts[2]);
-        if (!isNaN(lat) && !isNaN(lng)) {
-            init_coord = [lng, lat];
-        }
-    }
-}
-*/
+
 const filterPOl = document.getElementById('filterinput');
 const listingPOl = document.getElementById('feature-list');
 const clearBtn = document.getElementById('clearButton');
@@ -50,7 +34,8 @@ const categories = [
     { value: '', label: '全てのカテゴリ' },
     { value: 'a', label: '子連れに優しい場所' },
     { value: 'b', label: 'お洒落なカフェ' },
-    { value: 'c', label: 'ペットOKのお店' }
+    { value: 'c', label: 'ペットOKのお店' },
+    { value: 'd', label: '夏の暑い日におすすめ' }
 ];
 let targetCategory = '';
 
@@ -241,7 +226,6 @@ map.on('load', function () {
     let loadFGB_poi = async (url, updateCount) => {
         let updatedURL = `${url}?${yearA}${monthA+1}${dayA}`;//added URL parameter to get the latest dataset.
         console.log(updatedURL);
-        //const response = await fetch(url);
         const response = await fetch(updatedURL);
         let meta, iter = flatgeobuf.deserialize(response.body, null, m => meta = m)
         for await (let feature of iter) {
