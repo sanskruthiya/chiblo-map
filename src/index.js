@@ -1,5 +1,9 @@
 import * as maplibregl from "maplibre-gl";
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { MaplibreMeasureControl } from '@watergis/maplibre-gl-terradraw'
+import '@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css';
+import MaplibreGeocoder from '@maplibre/maplibre-gl-geocoder';
+import '@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css';
 import './style.css';
 
 let init_coord = [139.95, 35.89];
@@ -332,6 +336,7 @@ map.on('load', function () {
     }
 
     // マップ全体のクリックイベント
+    /*
     map.on('click', function(e) {
         // POIポイント以外のクリックのみここでエフェクトを表示
         const features = map.queryRenderedFeatures(e.point, { layers: ['poi_point'] });
@@ -339,17 +344,17 @@ map.on('load', function () {
             createRippleEffect(e, e.lngLat);
         }
     });
+    */
 
     // POIポイントのクリックイベント
     map.on('click', 'poi_point', function (e){
         // マップの移動を開始
         map.panTo(e.lngLat, {duration:1000});
-        
+    
         // マップの移動完了を待ってからエフェクトを表示
         setTimeout(() => {
             createRippleEffect(e, e.lngLat);
         }, 800);
-    
         let popupContent = '';
         popupContent += '<table class="tablestyle02"><tr><th class="main">ブログ記事 <small style="font-weight: normal; font-size: 11px; color: #fff;">（🔗場所名をクリックで追加リンク表示）</small></th></tr>';
         map.queryRenderedFeatures(e.point, { layers: ['poi_point']}).forEach(function (feat){
@@ -499,3 +504,81 @@ document.getElementById('b_location').addEventListener('click', function () {
         );
     }
 });
+
+const geocoderApi = {
+    forwardGeocode: async (config) => {
+        const features = [];
+        try {
+            const request =
+        `https://nominatim.openstreetmap.org/search?q=${
+            config.query
+        }&format=geojson&polygon_geojson=1&addressdetails=1`;
+            const response = await fetch(request);
+            const geojson = await response.json();
+            for (const feature of geojson.features) {
+                const center = [
+                    feature.bbox[0] +
+                (feature.bbox[2] - feature.bbox[0]) / 2,
+                    feature.bbox[1] +
+                (feature.bbox[3] - feature.bbox[1]) / 2
+                ];
+                const point = {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: center
+                    },
+                    place_name: feature.properties.display_name,
+                    properties: feature.properties,
+                    text: feature.properties.display_name,
+                    place_type: ['place'],
+                    center
+                };
+                features.push(point);
+            }
+        } catch (e) {
+            console.error(`Failed to forwardGeocode with error: ${e}`);
+        }
+
+        return {
+            features
+        };
+    }
+};
+
+const drawControl = new MaplibreMeasureControl({
+    modes: [
+        //'point',
+        'linestring',
+        'polygon',
+        //'rectangle',
+        //'angled-rectangle',
+        'circle',
+        //'sector',
+        //'sensor',
+        'freehand',
+        'select',
+        'delete-selection',
+        'delete',
+        //'download'
+    ],
+    open: true,
+    distanceUnit: 'kilometers', distancePrecision: 2, areaUnit: 'metric', areaPrecision: 2, forceAreaUnit: 'auto', computeElevation: false
+});
+
+map.addControl(drawControl, 'top-right');
+
+const geocoder = new MaplibreGeocoder(geocoderApi, {
+    maplibregl,
+    zoom: 15,
+    placeholder: '場所を検索',
+    showResultsWhileTyping: true,
+    collapsed: true,
+    bbox:[139.80, 35.70, 140.50, 36.50],
+    countries:'ja',
+    language:'ja',
+    limit: 3,
+    proximity: [139.977, 35.869],
+}
+);
+map.addControl(geocoder, 'top-right');
